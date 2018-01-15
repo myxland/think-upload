@@ -1,6 +1,6 @@
 <?php
 
-namespace myxland\wechat\library;
+namespace myxland\uploader\library;
 
 use think\console\Command;
 use think\console\Input;
@@ -19,7 +19,7 @@ class SendConfig extends Command
         //获取默认配置文件
         $content = file_get_contents(Env::get('root_path') . 'vendor/' . 'myxland/think-uploader/src/config.php');
 
-        $configPath = Env::get('root_path') . 'conf/';
+        $configPath = Env::get('root_path') . 'config/';
         $configFile = $configPath . 'uploader.php';
 
         //判断目录是否存在

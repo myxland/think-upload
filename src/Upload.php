@@ -36,41 +36,35 @@ class Upload
      *
      * @param array $config 配置
      */
-    public function __construct(array $config)
+    public function __construct()
     {
-        $this->config = config('uploader');
+        $this->config = config('uploader.');
     }
 
     /**
-     * 上传图片
+     * 上传
      *
+     * @param string $type 上传类型 [image, video, file]
+     * @param string $field 上传的字段名
      * @param string $prefix 前缀
      * @param string $name 文件名
-     * @param string $filed 上传的字段名
-     * @param string $type 上传类型 [image, video, file]
      * @return mixed
      */
-    public function upload($prefix = '', $name = null, $filed = 'file', $type = 'default')
+    public function upload($type = 'default', $field = 'file', $prefix = '', $name = null)
     {
-        $file = request()->file($filed);
-
-        if (is_null($file)) {
-            $this->setError('请选择上传文件');
-
-            return false;
-        }
+        $file = request()->file($field);
 
         $checkData = [];
         /** 大小验证 */
-        if ($this->config['size'] > 0) {
-            $checkData['size'] = $this->config[$type . '.size'];
+        if ($this->config[$type]['size'] > 0) {
+            $checkData['size'] = $this->config[$type]['size'];
         }
         /** 文件后缀验证 */
-        if ($this->config['ext']) {
-            $checkData['ext'] = $this->config[$type . '.ext'];
+        if ($this->config[$type]['ext']) {
+            $checkData['ext'] = $this->config[$type]['ext'];
         }
-        if ($this->config['type']) {
-            $checkData['type'] = $this->config[$type . '.type'];
+        if ($this->config[$type]['type']) {
+            $checkData['type'] = $this->config[$type]['type'];
         }
 
         /** 验证 */
@@ -102,7 +96,6 @@ class Upload
         $result = $file->move($this->config['save_path'], $name);
 
         if (! $result) {
-
             $this->setError($file->getError());
 
             return false;
@@ -135,7 +128,7 @@ class Upload
                 return $this->aliyunDriver($prefix, $name, $file);
                 break;
             default:
-                return $this->defaultDriver($prefix, $name, $file);
+                return $this->defaultDriver();
         }
     }
 
@@ -146,20 +139,20 @@ class Upload
      *
      * @return mixed
      */
-    protected function defaultDriver(\SplFileInfo $file)
+    protected function defaultDriver()
     {
-        $url = $this->config['default']['remote_url'];
+        $url = $this->config['local']['remote_url'];
 
-        if (substr($this->config['default']['remote_url'], -1, 1) != '/') {
+        if (substr($this->config['local']['remote_url'], -1, 1) != '/') {
             $url .= '/';
         }
 
-        $pathname = $file->getPathname();
-        if (substr($pathname, 0, 1) == '.') {
-            $pathname = substr($pathname, 1);
+        $pathname = $this->file->getSaveName();
+        if (substr($url, 0, 1) == '.') {
+            $url = substr($url, 1);
         }
-        if (substr($pathname, 0, 1) == '/') {
-            $pathname = substr($pathname, 1);
+        if (substr($url, 0, 1) == '/') {
+            $url = substr($url, 1);
         }
 
         $full = str_replace('\\', '/', $url . $pathname);
