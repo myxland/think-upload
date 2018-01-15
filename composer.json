@@ -1,5 +1,5 @@
 {
-	"name": "myxland/think-upload",
+	"name": "myxland/think-uploader",
 	"description": "Thinkphp5.1 FileUpload Library",
     "type": "think-extend",
     "license": "Apache-2.0",
